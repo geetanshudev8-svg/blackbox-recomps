@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: my-games-site
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASS
+        sync: false
+      - key: SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false
