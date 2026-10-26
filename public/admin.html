@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title><style>:root{--bg:#0e1117;--c:#171c26;--t:#e8ecf3;--m:#8b95a7;--a:#6d5efc}@media(prefers-color-scheme:light){:root{--bg:#f4f5f9;--c:#fff;--t:#1a1d27;--m:#667}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,sans-serif;background:var(--bg);color:var(--t)}
+header{padding:20px;text-align:center}h1{margin:0;font-size:1.6rem}main{max-width:1100px;margin:auto;padding:0 16px 40px}
+input,select,textarea,button{font:inherit;padding:10px 12px;border-radius:10px;border:1px solid #3a4152;background:var(--c);color:var(--t);width:100%}
+button,.btn{background:var(--a);color:#fff;border:0;cursor:pointer;text-decoration:none;display:inline-block;text-align:center;padding:10px 14px;border-radius:10px;width:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:14px}
+.card{background:var(--c);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.card img{width:100%;aspect-ratio:16/9;object-fit:cover;background:#2a3040}
+.card div{padding:12px;display:flex;flex-direction:column;gap:6px;flex:1}.card p{margin:0;color:var(--m);font-size:.85rem;flex:1}.tag{font-size:.75rem;color:var(--m)}
+.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}.danger{background:#d64550}</style></head><body>
+<header><h1>🔐 Admin Panel</h1></header><main>
+<div id="login" class="card" style="max-width:360px;margin:auto"><div><input id="u" placeholder="Username"><input id="p" type="password" placeholder="Password"><button onclick="lg()">Login</button><span id="m" class="tag"></span></div></div>
+<div id="panel" hidden><div class="card"><div><b id="ft">Add Game</b><input id="title" placeholder="Title"><input id="link" placeholder="Download link (https://...)"><input id="image" placeholder="Cover image URL (optional)">
+<div class="row"><input id="category" placeholder="Category (Action, RPG...)"><input id="size" placeholder="Size (e.g. 25 GB)"></div><textarea id="desc" rows="3" placeholder="Description"></textarea>
+<div class="row"><button onclick="save()">Save</button><button class="danger" onclick="clr()">Clear</button><button class="danger" onclick="out()">Logout</button></div></div></div>
+<div class="grid" id="g"></div></div></main>
+<script>const $=i=>document.getElementById(i),F=['title','link','image','category','size','desc'];let T=localStorage.t||'',G=[],E=null;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const api=(m,u,b)=>fetch(u,{method:m,headers:{'Content-Type':'application/json','x-token':T},body:b&&JSON.stringify(b)}).then(async r=>{const j=await r.json();if(!r.ok)throw j;return j});
+async function lg(){try{const r=await api('POST','/api/login',{user:$('u').value,pass:$('p').value});T=r.token;localStorage.t=T;init()}catch(e){$('m').textContent=e.error||'Error'}}
+function out(){localStorage.removeItem('t');location.reload()}
+function clr(){F.forEach(f=>$(f).value='');E=null;$('ft').textContent='Add Game'}
+async function save(){const b={};F.forEach(f=>b[f]=$(f).value);try{E?await api('PUT','/api/games/'+E,b):await api('POST','/api/games',b);clr();load()}catch(e){alert(e.error||'Error')}}
+function edit(id){const x=G.find(g=>g.id===id);F.forEach(f=>$(f).value=x[f]||'');E=id;$('ft').textContent='Edit Game';scrollTo(0,0)}
+async function del(id){if(confirm('Delete this game?')){await api('DELETE','/api/games/'+id);load()}}
+async function load(){G=await (await fetch('/api/games')).json();$('g').innerHTML=G.map(x=>'<div class="card"><div><b>'+esc(x.title)+'</b><span class="tag">'+esc(x.category)+'</span><div class="row"><button onclick="edit(\''+x.id+'\')">Edit</button><button class="danger" onclick="del(\''+x.id+'\')">Delete</button></div></div></div>').join('')}
+function init(){$('login').hidden=true;$('panel').hidden=false;load()}if(T)init();</script></body></html>
