@@ -24,7 +24,7 @@ main{max-width:1100px;margin:auto;padding:0 16px 50px}
 .meta{display:flex;gap:8px;font-size:.75rem;color:var(--m)}.meta b{color:var(--a2);font-weight:600}
 .body p{margin:0;color:var(--m);font-size:.85rem;line-height:1.4;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .btn{text-align:center;text-decoration:none;color:#fff;font-weight:600;padding:11px;border-radius:10px;background:linear-gradient(90deg,var(--a),#5b7bff)}
-.btn:active{opacity:.85}.empty{text-align:center;color:var(--m);padding:40px 0}
+.btns{display:flex;flex-direction:column;gap:8px}.btn.alt{background:var(--c);border:1px solid var(--a);color:var(--t)}.btn:active{opacity:.85}.empty{text-align:center;color:var(--m);padding:40px 0}
 footer{text-align:center;color:var(--m);font-size:.78rem;padding:20px}
 </style></head><body>
 <div class="hero"><div class="logo"><i>▣</i><span>Blackbox Recomps</span></div>
@@ -38,9 +38,11 @@ const $=i=>document.getElementById(i);let G=[],cat='';
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function chips(){const cs=['All',...new Set(G.map(x=>x.category))];
 $('chips').innerHTML=cs.map(c=>'<button class="chip'+((c==='All'&&!cat)||c===cat?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join('')}
+const bt=(u,t,c)=>u?'<a class="btn'+c+'" href="'+esc(u)+'" target="_blank" rel="noopener nofollow">'+t+'</a>':'';
+const btns=x=>'<div class="btns">'+bt(x.link,'⬇ Launcher','')+bt(x.link2,'⬇ Game Files',' alt')+'</div>';
 function show(){const q=$('q').value.toLowerCase().trim();
 const l=G.filter(x=>(!cat||x.category===cat)&&(x.title+' '+x.desc).toLowerCase().includes(q));
-$('g').innerHTML=l.map(x=>'<div class="card"><img loading="lazy" src="'+esc(x.image)+'" alt="" onerror="this.style.visibility=\'hidden\'"><div class="body"><h3>'+esc(x.title)+'</h3><div class="meta"><b>'+esc(x.category)+'</b>'+(x.size?'<span>'+esc(x.size)+'</span>':'')+'</div><p>'+esc(x.desc)+'</p><a class="btn" href="'+esc(x.link)+'" target="_blank" rel="noopener nofollow">Download</a></div></div>').join('');
+$('g').innerHTML=l.map(x=>'<div class="card"><img loading="lazy" src="'+esc(x.image)+'" alt="" onerror="this.style.visibility=\'hidden\'"><div class="body"><h3>'+esc(x.title)+'</h3><div class="meta"><b>'+esc(x.category)+'</b>'+(x.size?'<span>'+esc(x.size)+'</span>':'')+'</div><p>'+esc(x.desc)+'</p>'+btns(x)+'</div></div>').join('');
 $('e').hidden=l.length>0;$('n').textContent=G.length?l.length+' game'+(l.length===1?'':'s'):''}
 $('chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;cat=b.dataset.c==='All'?'':b.dataset.c;chips();show()};
 $('q').oninput=show;$('y').textContent=new Date().getFullYear();
