@@ -9,11 +9,11 @@ button,.btn{background:var(--a);color:#fff;border:0;cursor:pointer;text-decorati
 .row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:140px}.danger{background:#d64550}</style></head><body>
 <header><h1>🔐 Admin Panel</h1></header><main>
 <div id="login" class="card" style="max-width:360px;margin:auto"><div><input id="u" placeholder="Username"><input id="p" type="password" placeholder="Password"><button onclick="lg()">Login</button><span id="m" class="tag"></span></div></div>
-<div id="panel" hidden><div class="card"><div><b id="ft">Add Game</b><input id="title" placeholder="Title"><input id="link" placeholder="Download link (https://...)"><input id="image" placeholder="Cover image URL (optional)">
+<div id="panel" hidden><div class="card"><div><b id="ft">Add Game</b><input id="title" placeholder="Title"><input id="link" placeholder="Launcher link (https://...)"><input id="link2" placeholder="Game files link (https://...)"><input id="image" placeholder="Cover image URL (optional)">
 <div class="row"><input id="category" placeholder="Category (Action, RPG...)"><input id="size" placeholder="Size (e.g. 25 GB)"></div><textarea id="desc" rows="3" placeholder="Description"></textarea>
 <div class="row"><button onclick="save()">Save</button><button class="danger" onclick="clr()">Clear</button><button class="danger" onclick="out()">Logout</button></div></div></div>
 <div class="grid" id="g"></div></div></main>
-<script>const $=i=>document.getElementById(i),F=['title','link','image','category','size','desc'];let T=localStorage.t||'',G=[],E=null;
+<script>const $=i=>document.getElementById(i),F=['title','link','link2','image','category','size','desc'];let T=localStorage.t||'',G=[],E=null;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const api=(m,u,b)=>fetch(u,{method:m,headers:{'Content-Type':'application/json','x-token':T},body:b&&JSON.stringify(b)}).then(async r=>{const j=await r.json();if(!r.ok)throw j;return j});
 async function lg(){try{const r=await api('POST','/api/login',{user:$('u').value,pass:$('p').value});T=r.token;localStorage.t=T;init()}catch(e){$('m').textContent=e.error||'Error'}}
