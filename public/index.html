@@ -1,0 +1,48 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blackbox Recomps</title><meta name="description" content="Android ports of PC games with download links (static recompiled ports).">
+<style>
+:root{--bg:#0a0b10;--c:#14161f;--b:#262a38;--t:#eceff6;--m:#8d96aa;--a:#7c5cff;--a2:#00d4ff}
+@media(prefers-color-scheme:light){:root{--bg:#f3f4f9;--c:#fff;--b:#dfe2ec;--t:#14161f;--m:#5d667a}}
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--t)}
+.hero{text-align:center;padding:44px 18px 26px;background:radial-gradient(ellipse at top,rgba(124,92,255,.25),transparent 70%)}
+.logo{display:inline-flex;align-items:center;gap:10px;font-size:1.9rem;font-weight:800;letter-spacing:-.5px}
+.logo i{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--a),var(--a2));display:grid;place-items:center;font-style:normal;font-size:1.2rem;color:#fff}
+.logo span{background:linear-gradient(90deg,var(--a),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:10px auto 0;max-width:520px;color:var(--m);font-size:.95rem}
+main{max-width:1100px;margin:auto;padding:0 16px 50px}
+#q{width:100%;padding:13px 16px;border-radius:12px;border:1px solid var(--b);background:var(--c);color:var(--t);font:inherit}
+#q:focus{outline:2px solid var(--a);border-color:transparent}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:12px 0 4px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:7px 14px;border-radius:99px;border:1px solid var(--b);background:var(--c);color:var(--m);font:inherit;font-size:.85rem;cursor:pointer}
+.chip.on{background:var(--a);border-color:var(--a);color:#fff}
+.count{color:var(--m);font-size:.8rem;margin:10px 2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+.card{background:var(--c);border:1px solid var(--b);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .2s,border-color .2s}
+.card:hover{transform:translateY(-3px);border-color:var(--a)}
+.card img{width:100%;aspect-ratio:16/9;object-fit:cover;background:linear-gradient(135deg,#232842,#12141c)}
+.body{padding:14px;display:flex;flex-direction:column;gap:7px;flex:1}.body h3{margin:0;font-size:1.02rem}
+.meta{display:flex;gap:8px;font-size:.75rem;color:var(--m)}.meta b{color:var(--a2);font-weight:600}
+.body p{margin:0;color:var(--m);font-size:.85rem;line-height:1.4;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.btn{text-align:center;text-decoration:none;color:#fff;font-weight:600;padding:11px;border-radius:10px;background:linear-gradient(90deg,var(--a),#5b7bff)}
+.btn:active{opacity:.85}.empty{text-align:center;color:var(--m);padding:40px 0}
+footer{text-align:center;color:var(--m);font-size:.78rem;padding:20px}
+</style></head><body>
+<div class="hero"><div class="logo"><i>▣</i><span>Blackbox Recomps</span></div>
+<p>Android ports of PC games with download links (static recompiled ports).</p></div>
+<main><input id="q" type="search" placeholder="Search games…" autocomplete="off">
+<div class="chips" id="chips"></div><div class="count" id="n"></div>
+<div class="grid" id="g"></div><div class="empty" id="e" hidden>No games found.</div></main>
+<footer>© <span id="y"></span> Blackbox Recomps</footer>
+<script>
+const $=i=>document.getElementById(i);let G=[],cat='';
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function chips(){const cs=['All',...new Set(G.map(x=>x.category))];
+$('chips').innerHTML=cs.map(c=>'<button class="chip'+((c==='All'&&!cat)||c===cat?' on':'')+'" data-c="'+esc(c)+'">'+esc(c)+'</button>').join('')}
+function show(){const q=$('q').value.toLowerCase().trim();
+const l=G.filter(x=>(!cat||x.category===cat)&&(x.title+' '+x.desc).toLowerCase().includes(q));
+$('g').innerHTML=l.map(x=>'<div class="card"><img loading="lazy" src="'+esc(x.image)+'" alt="" onerror="this.style.visibility=\'hidden\'"><div class="body"><h3>'+esc(x.title)+'</h3><div class="meta"><b>'+esc(x.category)+'</b>'+(x.size?'<span>'+esc(x.size)+'</span>':'')+'</div><p>'+esc(x.desc)+'</p><a class="btn" href="'+esc(x.link)+'" target="_blank" rel="noopener nofollow">Download</a></div></div>').join('');
+$('e').hidden=l.length>0;$('n').textContent=G.length?l.length+' game'+(l.length===1?'':'s'):''}
+$('chips').onclick=e=>{const b=e.target.closest('.chip');if(!b)return;cat=b.dataset.c==='All'?'':b.dataset.c;chips();show()};
+$('q').oninput=show;$('y').textContent=new Date().getFullYear();
+fetch('/api/games').then(r=>r.json()).then(d=>{G=d;chips();show()}).catch(()=>{$('e').hidden=false;$('e').textContent='Could not load games.'});
+</script></body></html>
