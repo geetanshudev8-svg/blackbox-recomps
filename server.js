@@ -1,5 +1,5 @@
 const express=require('express'),crypto=require('crypto'),fs=require('fs'),path=require('path');
-const app=express();app.use(express.json({limit:'100kb'}));app.use(express.static(path.join(__dirname,'public')));
+const app=express();app.use(express.json({limit:'2mb'}));app.use(express.static(path.join(__dirname,'public')));
 const U=process.env.ADMIN_USER||'admin',P=process.env.ADMIN_PASS||'changeme',S=process.env.SECRET||'dev-secret';
 const sign=v=>crypto.createHmac('sha256',S).update(v).digest('hex');
 const ok=(a,b)=>{const x=Buffer.from(sign(a)),y=Buffer.from(sign(b));return crypto.timingSafeEqual(x,y)};
@@ -10,7 +10,7 @@ const rd=()=>{try{return JSON.parse(fs.readFileSync(F))}catch{return[]}};
 const wr=d=>fs.writeFileSync(F,JSON.stringify(d));
 async function list(){return col?col.find({},{projection:{_id:0}}).sort({date:-1}).toArray():rd().sort((a,b)=>b.date-a.date)}
 const bad=g=>!g.title||![g.link,g.link2].some(l=>/^https?:\/\//.test(l))||[g.link,g.link2].some(l=>l&&!/^https?:\/\//.test(l));
-const clean=b=>({title:String(b.title||'').slice(0,120),desc:String(b.desc||'').slice(0,1000),image:String(b.image||'').slice(0,500),
+const clean=b=>({title:String(b.title||'').slice(0,120),desc:String(b.desc||'').slice(0,1000),image:/^(https?:\/\/|data:image\/jpeg;base64,)/.test(b.image||'')?String(b.image).slice(0,400000):'',
  link:String(b.link||'').slice(0,1000),link2:String(b.link2||'').slice(0,1000),category:String(b.category||'General').slice(0,40),size:String(b.size||'').slice(0,30)});
 app.get('/api/games',async(_,r)=>r.json(await list()));
 app.post('/api/login',(req,res)=>{const{user,pass}=req.body||{};
